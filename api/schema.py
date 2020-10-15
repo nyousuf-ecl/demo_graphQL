@@ -4,7 +4,6 @@ from graphene_django.types import DjangoObjectType
 
 from .models import *
 
-
 class LocationType(DjangoObjectType):
     class Meta: 
         model = Location
@@ -23,6 +22,8 @@ class Event_memberType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
+    all_accounts = graphene.List(AccountType)
+
     all_members = graphene.List(Event_memberType)
 
     event = graphene.List(EventType, name = graphene.String())
@@ -31,8 +32,8 @@ class Query(graphene.ObjectType):
 
     event_member = graphene.List(Event_memberType, user_id=graphene.ID(), event_id=graphene.ID())
 
-    def resolve_all_members(self, info, **kwargs):
-        return Event_member.objects.all()
+    def resolve_all_accounts(self, info, **kwargs):
+        return Account.objects.all()
       
     def resolve_event(self, info, **kwargs):
       name = kwargs.get('name')
@@ -55,10 +56,10 @@ class Query(graphene.ObjectType):
       print(user_id)
       print(event_id)
       if user_id is not None:
-        print(Event_member.objects.get(user_id = user_id))
-        return [Event_member.objects.get(user_id = user_id)]
+        # print(Event_member.objects.get(user_id = user_id))
+        return list(Event_member.objects.filter(user_id = user_id))
       if event_id is not None:
-        return [Event_member.objects.get(event_id = event_id)]
+        return list(Event_member.objects.filter(event_id = event_id))
       else:
         return Event_member.objects.all()
 
